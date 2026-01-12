@@ -4,6 +4,7 @@ import DS4Controller from './ds4-controller.js';
 import DS5Controller from './ds5-controller.js';
 import DS5EdgeController from './ds5-edge-controller.js';
 import VR2Controller from './vr2-controller.js';
+import Xbox360Controller from './xbox360-controller.js';
 import { dec2hex } from '../utils.js';
 
 /**
@@ -17,7 +18,9 @@ class ControllerFactory {
     const ds5edge = { vendorId: 0x054c, productId: 0x0df2 };
     const vr2_left = { vendorId: 0x054c, productId: 0x0e45 };
     const vr2_right = { vendorId: 0x054c, productId: 0x0e46 };
-    return [ds4v1, ds4v2, ds5, ds5edge, vr2_left, vr2_right];
+    const xbox360_wired = { vendorId: 0x045e, productId: 0x028e };
+    const xbox360_wireless_legacy = { vendorId: 0x045e, productId: 0x0289 };
+    return [ds4v1, ds4v2, ds5, ds5edge, vr2_left, vr2_right, xbox360_wired, xbox360_wireless_legacy];
   }
 
 
@@ -44,6 +47,10 @@ class ControllerFactory {
       case 0x0e46: // VR2 Right
         return new VR2Controller(device, false);
 
+      case 0x028e: // Xbox 360 Controller (Wired)
+      case 0x0289: // Xbox 360 Controller (Wireless Legacy)
+        return new Xbox360Controller(device);
+
       default:
         throw new Error(`Unsupported device: ${dec2hex(device.vendorId)}:${dec2hex(device.productId)}`);
     }
@@ -64,6 +71,10 @@ class ControllerFactory {
         return "Sony DualSense";
       case 0x0df2:
         return "Sony DualSense Edge";
+      case 0x028e:
+        return "Xbox 360 Controller (Wired)";
+      case 0x0289:
+        return "Xbox 360 Controller (Wireless)";
       case 0x0e45:
         return "VR2 Left Controller";
       case 0x0e46:
@@ -113,6 +124,18 @@ class ControllerFactory {
           showQuickTests: false,
           showFourStepCalib: true,
           showQuickCalib: false
+        };
+
+      case 0x028e: // Xbox 360 Wired
+      case 0x0289: // Xbox 360 Wireless
+        return { 
+          showInfo: true, 
+          showFinetune: false, 
+          showInfoTab: true,
+          showQuickTests: true,
+          showFourStepCalib: true,
+          showQuickCalib: false,
+          showCalibrationHistory: false
         };
 
       default:
