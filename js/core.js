@@ -167,9 +167,51 @@ async function connect() {
     const supportedModels = ControllerFactory.getSupportedModels();
     const requestParams = { filters: supportedModels };
     let devices = await navigator.hid.getDevices(); // Already connected?
-    if (devices.length == 0) {
-      devices = await navigator.hid.requestDevice(requestParams);
+    
+    // Debug: Log detected devices for troubleshooting
+    console.log("Supported models:", supportedModels);
+    if (devices.length > 0) {
+      console.log("Already connected devices:", devices.map(d => ({ 
+        vendorId: '0x' + d.vendorId.toString(16).padStart(4, '0'), 
+        productId: '0x' + d.productId.toString(16).padStart(4, '0'),
+        productName: d.productName 
+      })));
     }
+    
+    if (devices.length == 0) {
+      try {
+        devices = await navigator.hid.requestDevice(requestParams);
+        // Debug: Log selected device
+        if (devices.length > 0) {
+          console.log("User selected device:", devices.map(d => ({ 
+            vendorId: '0x' + d.vendorId.toString(16).padStart(4, '0'), 
+            productId: '0x' + d.productId.toString(16).padStart(4, '0'),
+            productName: d.productName 
+          })));
+        }
+      } catch (error) {
+        console.error("Device selection error:", error);
+        // If no devices match filters, try without filters to see what's available
+        console.log("Attempting to detect ANY HID device for debugging...");
+        try {
+          const anyDevices = await navigator.hid.requestDevice({ filters: [] });
+          if (anyDevices.length > 0) {
+            console.warn("⚠️ UNRECOGNIZED DEVICE DETECTED:");
+            anyDevices.forEach(d => {
+              console.warn(`  Vendor ID: 0x${d.vendorId.toString(16).padStart(4, '0')}`);
+              console.warn(`  Product ID: 0x${d.productId.toString(16).padStart(4, '0')}`);
+              console.warn(`  Product Name: ${d.productName || 'Unknown'}`);
+              console.warn(`  Please report these IDs to add support for this controller.`);
+            });
+            alert(`Device detected but not supported yet!\n\nVendor ID: 0x${anyDevices[0].vendorId.toString(16).padStart(4, '0')}\nProduct ID: 0x${anyDevices[0].productId.toString(16).padStart(4, '0')}\nName: ${anyDevices[0].productName || 'Unknown'}\n\nPlease share these IDs to add support.`);
+          }
+        } catch (e) {
+          console.log("User cancelled or no devices available");
+        }
+        throw error;
+      }
+    }
+    
     if (devices.length == 0) {
       $("#btnconnect").prop("disabled", false);
       $("#connectspinner").hide();

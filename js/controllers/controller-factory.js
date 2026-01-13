@@ -5,6 +5,7 @@ import DS5Controller from './ds5-controller.js';
 import DS5EdgeController from './ds5-edge-controller.js';
 import VR2Controller from './vr2-controller.js';
 import Xbox360Controller from './xbox360-controller.js';
+import NaconController from './nacon-controller.js';
 import { dec2hex } from '../utils.js';
 
 /**
@@ -20,7 +21,18 @@ class ControllerFactory {
     const vr2_right = { vendorId: 0x054c, productId: 0x0e46 };
     const xbox360_wired = { vendorId: 0x045e, productId: 0x028e };
     const xbox360_wireless_legacy = { vendorId: 0x045e, productId: 0x0289 };
-    return [ds4v1, ds4v2, ds5, ds5edge, vr2_left, vr2_right, xbox360_wired, xbox360_wireless_legacy];
+    const nacon_asymmetric = { vendorId: 0x146b, productId: 0x0d01 };
+    const nacon_asymmetric_v2 = { vendorId: 0x146b, productId: 0x0d05 };
+    const nacon_revolution_pro = { vendorId: 0x146b, productId: 0x0d02 };
+    const nacon_revolution_pro2 = { vendorId: 0x146b, productId: 0x0d06 };
+    const nacon_revolution_pro3 = { vendorId: 0x146b, productId: 0x0d10 };
+    const nacon_compact = { vendorId: 0x146b, productId: 0x0d09 };
+    const nacon_daija = { vendorId: 0x146b, productId: 0x0d13 };
+    const nacon_gc100 = { vendorId: 0x146b, productId: 0x0603 };
+    const nacon_ps4_wired = { vendorId: 0x146b, productId: 0x0d08 };
+    return [ds4v1, ds4v2, ds5, ds5edge, vr2_left, vr2_right, xbox360_wired, xbox360_wireless_legacy, 
+            nacon_asymmetric, nacon_asymmetric_v2, nacon_revolution_pro, nacon_revolution_pro2, 
+            nacon_revolution_pro3, nacon_compact, nacon_daija, nacon_gc100, nacon_ps4_wired];
   }
 
 
@@ -51,6 +63,17 @@ class ControllerFactory {
       case 0x0289: // Xbox 360 Controller (Wireless Legacy)
         return new Xbox360Controller(device);
 
+      case 0x0d01: // NACON PS4 Asymmetric Wireless
+      case 0x0d05: // NACON PS4 Asymmetric Wireless v2
+      case 0x0d02: // NACON Revolution Pro Controller
+      case 0x0d06: // NACON Revolution Pro Controller 2
+      case 0x0d10: // NACON Revolution Pro Controller 3
+      case 0x0d09: // NACON Compact Controller
+      case 0x0d13: // NACON Daija Arcade Stick
+      case 0x0603: // NACON GC-100
+      case 0x0d08: // NACON PS4 Wired Controller
+        return new NaconController(device);
+
       default:
         throw new Error(`Unsupported device: ${dec2hex(device.vendorId)}:${dec2hex(device.productId)}`);
     }
@@ -79,6 +102,24 @@ class ControllerFactory {
         return "VR2 Left Controller";
       case 0x0e46:
         return "VR2 Right Controller";
+      case 0x0d01:
+        return "NACON PS4 Asymmetric Wireless";
+      case 0x0d05:
+        return "NACON PS4 Asymmetric Wireless V2";
+      case 0x0d02:
+        return "NACON Revolution Pro Controller";
+      case 0x0d06:
+        return "NACON Revolution Pro Controller 2";
+      case 0x0d10:
+        return "NACON Revolution Pro Controller 3";
+      case 0x0d09:
+        return "NACON Compact Controller";
+      case 0x0d13:
+        return "NACON Daija Arcade Stick";
+      case 0x0603:
+        return "NACON GC-100";
+      case 0x0d08:
+        return "NACON PS4 Wired Controller";
       default:
         return "Unknown Device";
     }
@@ -128,6 +169,22 @@ class ControllerFactory {
 
       case 0x028e: // Xbox 360 Wired
       case 0x0289: // Xbox 360 Wireless
+        return { 
+          showInfo: true, 
+          showFinetune: false, 
+          showInfoTab: true,
+          showQuickTests: true,
+          showFourStepCalib: true,
+          showQuickCalib: false,
+          showCalibrationHistory: false
+        };
+
+      case 0x0d01: // NACON PS4 Asymmetric Wireless
+      case 0x0d05: // NACON PS4 Asymmetric Wireless V2
+      case 0x0d02: // NACON Revolution Pro Controller
+      case 0x0d06: // NACON Revolution Pro Controller 2
+      case 0x0d10: // NACON Revolution Pro Controller 3
+      case 0x0d09: // NACON Compact Controller
         return { 
           showInfo: true, 
           showFinetune: false, 
